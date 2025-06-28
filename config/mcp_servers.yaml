@@ -1,0 +1,33 @@
+servers:
+  slack:
+    name: "slack-integration-server"
+    command: ["python", "-m", "src.mcp_servers.slack_server"]
+    transport: "stdio"
+    enabled: true
+    
+  discord:
+    name: "discord-integration-server"
+    command: ["python", "-m", "src.mcp_servers.discord_server"]
+    transport: "stdio"
+    enabled: true
+    
+  infrastructure:
+    name: "infrastructure-monitoring-server"
+    command: ["python", "-m", "src.mcp_servers.infrastructure_server"]
+    transport: "stdio"
+    enabled: true
+    
+  automation:
+    name: "automation-server"
+    command: ["python", "-m", "src.mcp_servers.automation_server"]
+    transport: "stdio"
+    enabled: true
+
+meta_servers:
+  mcp_get:
+    enabled: true
+    registry_url: "https://mcp-get.com/registry"
+  
+  openapi_explorer:
+    enabled: true
+    cache_duration: 3600

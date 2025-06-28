@@ -1,0 +1,254 @@
+
+environment: production
+debug: false
+log_level: INFO
+
+venice:
+  api_url: "https://api.venice.ai/v1"
+  model_preferences:
+    default: "claude-3-5-sonnet-20241022"
+    research: "claude-3-5-sonnet-20241022"
+    analysis: "claude-3-5-sonnet-20241022"
+    generation: "claude-3-5-sonnet-20241022"
+  context_window: 200000
+  max_tokens: 4096
+  temperature: 0.5  # More conservative for production
+  vram_limit_gb: 64
+  timeout_seconds: 180  # Longer timeout for production
+
+memory:
+  vector_store:
+    provider: "chroma"
+    persist_directory: "/data/chroma_prod"
+    collection_name: "ai_agent_memory_prod"
+    embedding_model: "all-MiniLM-L6-v2"
+    max_documents: 100000  # Higher capacity for production
+  
+  long_term_memory:
+    retention_days: 365
+    importance_threshold: 0.5  # Higher threshold for production
+    auto_cleanup: true
+    backup_interval_hours: 12  # More frequent backups
+  
+  research_memory:
+    max_findings: 10000
+    similarity_threshold: 0.85  # Higher precision
+    auto_categorize: true
+  
+  experience_db:
+    max_experiences: 50000
+    success_weight: 1.5
+    failure_weight: 2.0
+
+mcp_servers:
+  slack:
+    enabled: true
+    transport: "sse"  # More robust for production
+    oauth_enabled: true
+    rate_limit: 50  # Conservative rate limiting
+    timeout: 60
+    config:
+      workspace_id: "${SLACK_WORKSPACE_ID}"
+      channels: ["general", "ai-agent", "alerts"]
+  
+  discord:
+    enabled: true
+    transport: "sse"
+    oauth_enabled: true
+    rate_limit: 50
+    timeout: 60
+    config:
+      guild_id: "${DISCORD_GUILD_ID}"
+      channels: ["general", "ai-agent", "alerts"]
+  
+  infrastructure:
+    enabled: true
+    transport: "sse"
+    rate_limit: 30
+    timeout: 120
+    config:
+      monitored_services: ["nginx", "docker", "postgresql", "redis"]
+      alert_thresholds:
+        cpu_percent: 70.0  # More conservative
+        memory_percent: 80.0
+        disk_usage: 85.0
+      allowed_commands: ["systemctl", "ps", "df", "free", "uptime", "journalctl"]
+  
+  automation:
+    enabled: true
+    transport: "sse"
+    rate_limit: 10  # Very conservative for production
+    timeout: 300
+    config:
+      headless: true
+      browser_type: "chromium"
+      download_dir: "/data/downloads"
+      search_engines:
+        - "duckduckgo"
+        - "bing"
+        - "google"
+  
+  meta_server:
+    enabled: true
+    transport: "sse"
+    rate_limit: 5  # Very limited for production
+    timeout: 600
+    config:
+      server_output_dir: "/data/generated_servers"
+      max_history_size: 500
+      research_depth: "deep"  # More thorough research
+
+agent:
+  manager:
+    max_concurrent_tasks: 10  # Higher capacity
+    task_timeout_minutes: 60  # Longer timeouts
+    retry_attempts: 5
+    coordination_interval_seconds: 30
+  
+  research_coordinator:
+    max_sources: 20
+    research_timeout_minutes: 30
+    quality_threshold: 0.8  # Higher quality bar
+    parallel_research: true
+  
+  tool_creator:
+    max_tools_per_session: 50
+    validation_enabled: true
+    auto_deploy: false  # Always require approval
+  
+  executor:
+    max_background_tasks: 20
+    task_queue_size: 500
+    health_check_interval: 30
+
+features:
+  interfaces:
+    slack_integration: true
+    discord_integration: true
+    web_interface: true
+    api_interface: true
+  
+  tools:
+    file_operations: true
+    system_commands: true
+    network_access: true
+    browser_automation: true
+    service_management: true
+  
+  memory:
+    auto_reflection: true
+    pattern_recognition: true
+    experience_learning: true
+    memory_sharing: true
+  
+  monitoring:
+    performance_tracking: true
+    error_reporting: true
+    usage_analytics: true
+    health_checks: true
+  
+  advanced:
+    dynamic_server_creation: true
+    api_research: true
+    capability_analysis: true
+    auto_optimization: true
+
+security:
+  oauth:
+    enabled: true
+    token_expiry_hours: 8  # Shorter for security
+    refresh_token_enabled: true
+  
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 500  # More conservative
+    burst_limit: 50
+  
+  permissions:
+    admin_required: true
+    user_isolation: true
+    audit_logging: true
+  
+  encryption:
+    enabled: true
+    algorithm: "AES-256-GCM"
+    key_rotation_days: 30
+
+monitoring:
+  metrics:
+    enabled: true
+    collection_interval: 15  # More frequent
+    retention_days: 30
+  
+  logging:
+    level: INFO
+    format: "json"  # Structured logging for production
+    file_rotation: true
+    max_file_size_mb: 500
+    max_files: 10
+  
+  health_checks:
+    enabled: true
+    interval_seconds: 30
+    timeout_seconds: 15
+    endpoints:
+      - "/health"
+      - "/metrics"
+      - "/ready"
+  
+  alerting:
+    enabled: true
+    channels: ["slack", "discord", "email"]
+    severity_levels: ["critical", "warning", "info"]
+
+production:
+  auto_scaling: true
+  load_balancing: true
+  circuit_breaker: true
+  graceful_shutdown: true
+  
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 90
+    compression: true
+
+storage:
+  base_directory: "/data"
+  backup_enabled: true
+  backup_interval_hours: 4  # More frequent
+  cleanup_old_backups: true
+  max_backup_age_days: 90
+  
+  persistence:
+    enabled: true
+    sync_interval: 300
+    compression: true
+
+network:
+  bind_address: "0.0.0.0"
+  port: 8000
+  max_connections: 1000  # Higher capacity
+  timeout_seconds: 60
+  
+  tls:
+    enabled: true
+    cert_file: "/etc/ssl/certs/ai-core.crt"
+    key_file: "/etc/ssl/private/ai-core.key"
+  
+  proxy:
+    enabled: true
+    http_proxy: "${HTTP_PROXY}"
+    https_proxy: "${HTTPS_PROXY}"
+
+resources:
+  max_memory_mb: 16384  # Higher for production
+  max_cpu_percent: 90
+  max_disk_usage_gb: 100
+  max_concurrent_requests: 200
+  
+  scaling:
+    min_instances: 2
+    max_instances: 10
+    cpu_threshold: 70
+    memory_threshold: 80
