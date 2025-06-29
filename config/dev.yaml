@@ -1,0 +1,224 @@
+
+environment: development
+debug: true
+log_level: DEBUG
+
+venice:
+  api_url: "https://api.venice.ai/v1"
+  model_preferences:
+    default: "claude-3-5-sonnet-20241022"
+    research: "claude-3-5-sonnet-20241022"
+    analysis: "claude-3-5-sonnet-20241022"
+    generation: "claude-3-5-sonnet-20241022"
+  context_window: 200000
+  max_tokens: 4096
+  temperature: 0.7
+  vram_limit_gb: 64
+  timeout_seconds: 120
+
+memory:
+  vector_store:
+    provider: "chroma"
+    persist_directory: "./data/chroma_dev"
+    collection_name: "ai_agent_memory_dev"
+    embedding_model: "all-MiniLM-L6-v2"
+    max_documents: 10000
+  
+  long_term_memory:
+    retention_days: 90
+    importance_threshold: 0.3
+    auto_cleanup: true
+    backup_interval_hours: 24
+  
+  research_memory:
+    max_findings: 1000
+    similarity_threshold: 0.8
+    auto_categorize: true
+  
+  experience_db:
+    max_experiences: 5000
+    success_weight: 1.5
+    failure_weight: 2.0
+
+mcp_servers:
+  slack:
+    enabled: true
+    transport: "stdio"
+    oauth_enabled: false  # Disabled for dev
+    rate_limit: 100
+    timeout: 30
+    config:
+      workspace_id: "dev-workspace"
+      channels: ["general", "dev-testing"]
+  
+  discord:
+    enabled: true
+    transport: "stdio"
+    oauth_enabled: false  # Disabled for dev
+    rate_limit: 100
+    timeout: 30
+    config:
+      guild_id: "dev-guild"
+      channels: ["general", "bot-testing"]
+  
+  infrastructure:
+    enabled: true
+    transport: "stdio"
+    rate_limit: 50
+    timeout: 60
+    config:
+      monitored_services: ["nginx", "docker", "ssh"]
+      alert_thresholds:
+        cpu_percent: 80.0
+        memory_percent: 85.0
+        disk_usage: 90.0
+      allowed_commands: ["systemctl", "ps", "df", "free", "uptime"]
+  
+  automation:
+    enabled: true
+    transport: "stdio"
+    rate_limit: 20
+    timeout: 120
+    config:
+      headless: true
+      browser_type: "chromium"
+      download_dir: "./downloads"
+      search_engines:
+        - "duckduckgo"
+        - "bing"
+  
+  meta_server:
+    enabled: true
+    transport: "stdio"
+    rate_limit: 10
+    timeout: 300
+    config:
+      server_output_dir: "./generated_servers"
+      max_history_size: 100
+      research_depth: "medium"
+
+agent:
+  manager:
+    max_concurrent_tasks: 5
+    task_timeout_minutes: 30
+    retry_attempts: 3
+    coordination_interval_seconds: 10
+  
+  research_coordinator:
+    max_sources: 10
+    research_timeout_minutes: 15
+    quality_threshold: 0.7
+    parallel_research: true
+  
+  tool_creator:
+    max_tools_per_session: 20
+    validation_enabled: true
+    auto_deploy: false  # Manual approval in dev
+  
+  executor:
+    max_background_tasks: 10
+    task_queue_size: 100
+    health_check_interval: 60
+
+features:
+  interfaces:
+    slack_integration: true
+    discord_integration: true
+    web_interface: false  # Not implemented yet
+    api_interface: false  # Not implemented yet
+  
+  tools:
+    file_operations: true
+    system_commands: true
+    network_access: true
+    browser_automation: true
+    service_management: false  # Restricted in dev
+  
+  memory:
+    auto_reflection: true
+    pattern_recognition: true
+    experience_learning: true
+    memory_sharing: false  # Keep dev isolated
+  
+  monitoring:
+    performance_tracking: true
+    error_reporting: true
+    usage_analytics: false  # Privacy in dev
+    health_checks: true
+  
+  advanced:
+    dynamic_server_creation: true
+    api_research: true
+    capability_analysis: true
+    auto_optimization: false  # Manual control in dev
+
+security:
+  oauth:
+    enabled: false  # Simplified for dev
+    token_expiry_hours: 24
+  
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 1000
+    burst_limit: 100
+  
+  permissions:
+    admin_required: false
+    user_isolation: false
+    audit_logging: true
+
+monitoring:
+  metrics:
+    enabled: true
+    collection_interval: 30
+    retention_days: 7
+  
+  logging:
+    level: DEBUG
+    format: "detailed"
+    file_rotation: true
+    max_file_size_mb: 100
+  
+  health_checks:
+    enabled: true
+    interval_seconds: 60
+    timeout_seconds: 10
+    endpoints:
+      - "/health"
+      - "/metrics"
+
+development:
+  hot_reload: true
+  debug_mode: true
+  test_mode: false
+  mock_external_apis: false
+  profiling: false
+  
+  test_data:
+    generate_sample_data: true
+    sample_size: 100
+    reset_on_startup: false
+
+storage:
+  base_directory: "./data"
+  backup_enabled: true
+  backup_interval_hours: 6
+  cleanup_old_backups: true
+  max_backup_age_days: 30
+
+network:
+  bind_address: "127.0.0.1"
+  port: 8000
+  max_connections: 100
+  timeout_seconds: 30
+  
+  proxy:
+    enabled: false
+    http_proxy: null
+    https_proxy: null
+
+resources:
+  max_memory_mb: 4096
+  max_cpu_percent: 80
+  max_disk_usage_gb: 10
+  max_concurrent_requests: 50
